@@ -14,6 +14,8 @@ namespace Haste\Frontend;
 
 use Contao\BackendTemplate;
 use Contao\Module;
+use Contao\StringUtil;
+use Contao\System;
 
 abstract class AbstractFrontendModule extends Module
 {
@@ -35,7 +37,7 @@ abstract class AbstractFrontendModule extends Module
             }
 
             if (array_key_exists($name, $this->arrData)) {
-                $this->arrData[$name] = deserialize($this->arrData[$name], $force);
+                $this->arrData[$name] = StringUtil::deserialize($this->arrData[$name], $force);
             }
         }
     }
@@ -45,7 +47,11 @@ abstract class AbstractFrontendModule extends Module
      */
     public function generate()
     {
-        if ('BE' === TL_MODE && $this->showWildcard()) {
+        $container = System::getContainer();
+        $request = $container->get('request_stack')->getCurrentRequest();
+        $scopeMatcher = $container->get('contao.routing.scope_matcher');
+
+        if ($request && $scopeMatcher->isBackendRequest($request) && $this->showWildcard()) {
             return $this->generateWildcard();
         }
 

@@ -14,15 +14,18 @@ namespace Haste\Model;
 
 use Contao\Config;
 use Contao\Controller;
+use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\DcaLoader;
 use Contao\Input;
 use Contao\ModuleLoader;
 use Contao\Session;
+use Contao\StringUtil;
 use Contao\System;
 use Haste\Util\Format;
 use Haste\Util\Undo;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class Relations
 {
@@ -68,12 +71,34 @@ class Relations
     private static $overrideAllCache = [];
 
     /**
+     * @var ScopeMatcher
+     */
+    private $scopeMatcher;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    public function __construct(ScopeMatcher $scopeMatcher, RequestStack $requestStack)
+    {
+        $this->scopeMatcher = $scopeMatcher;
+        $this->requestStack = $requestStack;
+    }
+
+    /**
      * Add the relation callbacks to DCA
      *
      * @param string
      */
     public function addRelationCallbacks($strTable)
     {
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (!$request || !$this->scopeMatcher->isBackendRequest($request)) {
+            return;
+        }
+
         if (!isset($GLOBALS['TL_DCA'][$strTable]['fields'])) {
             return;
         }
@@ -116,7 +141,7 @@ class Relations
         $GLOBALS['TL_DCA'][$strTable]['config']['ondelete_callback'][] = ['Haste\Model\Relations', 'cleanRelatedRecords'];
 
         // Add filter callbacks
-        if (!empty(static::$arrFilterableFields) && 'BE' === TL_MODE) {
+        if (!empty(static::$arrFilterableFields)) {
             $GLOBALS['TL_DCA'][$strTable]['config']['onload_callback'][] = ['Haste\Model\Relations', 'filterByRelations'];
             if (isset($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['panelLayout'])){
                 $GLOBALS['TL_DCA'][$strTable]['list']['sorting']['panelLayout'] = preg_replace('/filter/', 'haste_filter;filter', $GLOBALS['TL_DCA'][$strTable]['list']['sorting']['panelLayout'], 1);
@@ -124,7 +149,7 @@ class Relations
             }
         }
 
-        if (!empty(static::$arrSearchableFields) && 'BE' === TL_MODE) {
+        if (!empty(static::$arrSearchableFields)) {
             $GLOBALS['TL_DCA'][$strTable]['config']['onload_callback'][] = ['Haste\Model\Relations', 'filterBySearch'];
             if (isset($GLOBALS['TL_DCA'][$strTable]['list']['sorting']['panelLayout'])){
                 $GLOBALS['TL_DCA'][$strTable]['list']['sorting']['panelLayout'] = preg_replace('/search/', 'haste_search;search', $GLOBALS['TL_DCA'][$strTable]['list']['sorting']['panelLayout'], 1);
@@ -154,7 +179,7 @@ class Relations
             if (($field['eval']['multiple'] ?? false) && ($field['eval']['csv'] ?? false)) {
                 $arrValues = explode($field['eval']['csv'], $varValue);
             } else {
-                $arrValues = deserialize($varValue, true);
+                $arrValues = StringUtil::deserialize($varValue, true);
             }
 
             // Check the purge cache

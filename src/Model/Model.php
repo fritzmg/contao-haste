@@ -13,6 +13,7 @@
 namespace Haste\Model;
 
 use Contao\Database;
+use Contao\StringUtil;
 
 abstract class Model extends \Contao\Model
 {
@@ -105,7 +106,7 @@ abstract class Model extends \Contao\Model
                 ->limit(1)
                 ->execute($arrValues[0]);
 
-            $arrRecordValues = deserialize($objRecord->$strField, true);
+            $arrRecordValues = StringUtil::deserialize($objRecord->$strField, true);
 
             if (empty($arrRecordValues)) {
                 $arrRecordValues = array(0);
@@ -147,7 +148,7 @@ abstract class Model extends \Contao\Model
                 ->limit(1)
                 ->execute($arrValues[0]);
 
-            $arrRecordValues = deserialize($objRecord->$strField, true);
+            $arrRecordValues = StringUtil::deserialize($objRecord->$strField, true);
 
             if (empty($arrRecordValues)) {
                 $arrRecordValues = array(0);

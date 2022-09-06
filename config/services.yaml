@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        autoconfigure: true
+
+    haste.model.relations:
+        class: Haste\Model\Relations
+        arguments:
+            - '@contao.routing.scope_matcher'
+            - '@request_stack'
+        tags:
+            - { name: contao.hook, hook: 'sqlGetFromFile' }

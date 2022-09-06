@@ -17,6 +17,7 @@ use Contao\Controller;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\Image;
+use Contao\StringUtil;
 use Contao\System;
 
 class Undo
@@ -71,7 +72,7 @@ class Undo
 
         $error = false;
         $query = $objRecords->query;
-        $data = deserialize($objRecords->data);
+        $data = StringUtil::deserialize($objRecords->data);
 
         if (!is_array($data)) {
             return false;

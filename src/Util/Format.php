@@ -15,6 +15,7 @@ namespace Haste\Util;
 use Contao\Controller;
 use Contao\Database;
 use Contao\DataContainer;
+use Contao\StringUtil;
 use Contao\System;
 
 class Format
@@ -143,7 +144,7 @@ class Format
      */
     public static function dcaValueFromArray(array $arrField, $varValue, DataContainer $objDc = null)
     {
-        $varValue = deserialize($varValue);
+        $varValue = StringUtil::deserialize($varValue);
 
         if (is_array($arrField['options_callback'] ?? null) && $objDc !== null) { // Options callback (array)
 

@@ -17,6 +17,7 @@ use Contao\File;
 use Contao\Files;
 use Contao\FilesModel;
 use Contao\Frontend;
+use Contao\StringUtil;
 use Contao\System;
 
 class Image
@@ -263,7 +264,7 @@ class Image
     {
         $images = [];
 
-        $files = deserialize($uuids, true);
+        $files = StringUtil::deserialize($uuids, true);
 
         $fileModels = FilesModel::findMultipleByUuids($files);
 
@@ -333,7 +334,7 @@ class Image
 
         // Use the file name as title if none is given
         if ('' === ($meta['title'] ?? null)) {
-            $meta['title'] = specialchars($file->basename);
+            $meta['title'] = StringUtil::specialchars($file->basename);
         }
 
         $image = [
@@ -367,12 +368,20 @@ class Image
 
         $stdClass = new \stdClass();
 
-        Controller::addImageToTemplate(
-            $stdClass,
-            $image,
-            isset($options['maxWidth']) ? $options['maxWidth'] : null,
-            isset($options['lightboxId']) ? $options['lightboxId'] : null
-        );
+        $container = System::getContainer();
+
+        if ($container->has('contao.image.studio')) {
+            $figureBuilder = System::getContainer()->get('contao.image.studio')->createFigureBuilder();
+
+            
+        } else {
+            Controller::addImageToTemplate(
+                $stdClass,
+                $image,
+                isset($options['maxWidth']) ? $options['maxWidth'] : null,
+                isset($options['lightboxId']) ? $options['lightboxId'] : null
+            );
+        }
 
         $image['templateData'] = $stdClass;
 
@@ -433,7 +442,7 @@ class Image
                     throw new \InvalidArgumentException('When sorting by custom order, you need to provide the "orderSRC" array option containing the UUIDs in correct order.');
                 }
 
-                $order = deserialize($options['orderSRC'], true);
+                $order = StringUtil::deserialize($options['orderSRC'], true);
 
                 // Remove all values
                 $order = array_map(function () {}, array_flip($order));

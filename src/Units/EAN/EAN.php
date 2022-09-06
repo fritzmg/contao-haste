@@ -10,6 +10,8 @@
  */
 namespace Haste\Units\EAN;
 
+use Contao\StringUtil;
+
 /**
  * Class EAN
  */
@@ -57,7 +59,7 @@ class EAN
      */
     public static function createFromTimePeriod($data)
     {
-        $data = deserialize($data);
+        $data = StringUtil::deserialize($data);
 
         if (empty($data) || !is_array($data) || $data['value'] === '' || $data['unit'] === '' || !in_array($data['unit'], Unit::getAll())) {
             return new static(0, Unit::getBase());

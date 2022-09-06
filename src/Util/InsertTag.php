@@ -16,6 +16,7 @@ use Contao\Config;
 use Contao\Controller;
 use Contao\Date;
 use Contao\FormFieldModel;
+use Contao\StringUtil;
 
 class InsertTag
 {
@@ -244,7 +245,7 @@ class InsertTag
             return $value;
         }
 
-        $options = deserialize($field->options);
+        $options = StringUtil::deserialize($field->options);
 
         if (empty($options) || !is_array($options)) {
             return $value;

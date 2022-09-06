@@ -10,6 +10,8 @@
  */
 namespace Haste\Units\Dimension;
 
+use Contao\StringUtil;
+
 /**
  * Class Dimension
  */
@@ -63,7 +65,7 @@ class Dimension implements Measurable
      */
     public static function createFromTimePeriod($arrData)
     {
-        $arrData = deserialize($arrData);
+        $arrData = StringUtil::deserialize($arrData);
 
         if (empty($arrData)
             || !is_array($arrData)
